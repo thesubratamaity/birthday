@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Di | A Special Surprise</title>
+
+    <!-- Fonts: Playfair Display (Elegant) & Montserrat (Modern) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- RESET & VARIABLES --- */
+        :root {
+            --bg-dark: #0f0c29;
+            --bg-gradient: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+            --gold: #d4af37;
+            --rose-gold: #b76e79;
+            --text-light: #f5f5f5;
+            --text-dim: #cccccc;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* --- BACKGROUND PARTICLES (CANVAS) --- */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* --- PAGE 1: INTRO SECTION --- */
+        #intro-screen {
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            background: var(--bg-dark);
+            /* Initial solid background */
+            background-image: radial-gradient(circle at center, #302b63 0%, #0f0c29 70%);
+        }
+
+        .title-container {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .main-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+            min-height: 4.5rem;
+            /* Prevent layout shift */
+            display: inline-block;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 3.5rem;
+            background-color: var(--rose-gold);
+            animation: blink 0.8s infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        .quote-container {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--text-dim);
+            max-width: 600px;
+            padding: 0 20px;
+            opacity: 0;
+            /* Hidden initially for GSAP */
+            transform: translateY(20px);
+        }
+
+        /* --- PAGE 2: MAIN CONTENT --- */
+        #main-content {
+            position: relative;
+            z-index: 10;
+            padding: 80px 20px;
+            opacity: 0;
+            visibility: hidden;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--rose-gold);
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: var(--gold);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+        /* --- MUSIC GRID --- */
+        .music-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 6rem;
+        }
+
+        .music-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .music-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(183, 110, 121, 0.2);
+            border-color: var(--rose-gold);
+        }
+
+        .music-thumb {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .music-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: var(--text-light);
+        }
+
+        .music-info p {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            /* Let clicks pass to card */
+        }
+
+        .music-card:hover .play-icon {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .music-card.playing {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .music-card.playing .play-icon {
+            content: "\f04c";
+            /* FontAwesome pause would go here via JS toggle */
+            transform: translate(-50%, -50%) scale(1);
+            color: var(--gold);
+        }
+
+        /* --- GALLERY GRID --- */
+        .gallery-container {
+            position: relative;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            height: 400px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            cursor: crosshair;
+            /* opacity: 0;  REMOVED THIS LINE TO FIX INVISIBLE IMAGES */
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(183, 110, 121, 0.3));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            opacity: 1;
+        }
+
+        .overlay-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            transform: translateY(20px);
+            transition: transform 0.4s ease 0.1s;
+        }
+
+        .gallery-item:hover .overlay-text {
+            transform: translateY(0);
+        }
+
+        /* --- FLOATING ELEMENTS & EXTRAS --- */
+        .floating-heart {
+            position: fixed;
+            color: rgba(183, 110, 121, 0.4);
+            font-size: 20px;
+            z-index: 5;
+            pointer-events: none;
+            animation: floatUp 10s linear infinite;
+        }
+
+        .confetti-side {
+            position: absolute;
+            top: 0;
+            width: 50px;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            margin-top: 4rem;
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2rem;
+                height: 3rem;
+            }
+
+            .cursor {
+                height: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .gallery-item {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Canvas for Starry Background -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- INTRO PAGE -->
+    <div id="intro-screen">
+        <div class="title-container">
+            <span id="typing-target" class="main-title"></span><span class="cursor"></span>
+        </div>
+        <div class="quote-container">
+            "Count your life by smiles, not tears. Count your age by friends, not years.
+            May your day be as beautiful as your heart."
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT (Hidden Initially) -->
+    <div id="main-content">
+
+        <!-- MUSIC SECTION -->
+        <h2 class="section-title">Melodies for You</h2>
+        <div class="music-grid">
+            <!-- Song 1 -->
+            <div class="music-card" onclick="playAudio('audio1', this)">
+                <img src="/New folder/Raabta.avif" alt="Party" class="music-thumb">
+                <div class="music-info">
+                    <h3>Raabta</h3>
+                    <p>Arijit Singh</p>
+                </div>
+                <i class="fas fa-play play-icon"></i>
+                <audio id="audio1" src="song/Raabta - Arijit Singh _ Agent Vinod _ Hindi.mp3"></audio>
+            </div>
+
+            <!-- Song 2 -->
+            <div class="music-card" onclick="playAudio('audio2', this)">
+                <img src="New folder/satranga.avif" alt="Piano" class="music-thumb">
+                <div class="music-info">
+                    <h3>satranga</h3>
+                    <p>Arijit Singh</p>
+                </div>
+                <i class="fas fa-play play-icon"></i>
+                <audio id="audio2" src="song/satranga.mp3"></audio>
+                <!-- Note: Using placeholder audio, title implies mood -->
+            </div>
+
+            <!-- Song 3 -->
+            <div class="music-card" onclick="playAudio('audio3', this)">
+                <img src="New folder/tera_yaar_hoon.avif" alt="Music" class="music-thumb">
+                <div class="music-info">
+                    <h3>tera yaar hoon</h3>
+                    <p>Arijit Singh</p>
+                </div>
+                <i class="fas fa-play play-icon"></i>
+                <audio id="audio3" src="song/tera_yaar_hoon_main.mp3"></audio>
+            </div>
+
+            <!-- Song 4 -->
+            <div class="music-card" onclick="playAudio('audio4', this)">
+                <img src="New folder/Tum Hi Ho Song.avif" alt="Night" class="music-thumb">
+                <div class="music-info">
+                    <h3>Tum Hi Ho</h3>
+                    <p>Arijit Singh</p>
+                </div>
+                <i class="fas fa-play play-icon"></i>
+                <audio id="audio4" src="song/Tum Hi Ho Song Download.mp3"></audio>
+            </div>
+        </div>
+
+        <!-- GALLERY SECTION -->
+        <h2 class="section-title">Memories Gallery</h2>
+        <div class="gallery-container">
+            <div class="gallery-grid">
+                <!-- Photo 1 -->
+                <div class="gallery-item left-entry">
+                    <img src="https://scontent.fccu2-1.fna.fbcdn.net/v/t39.30808-6/481051869_1160635539061613_6316638572296076024_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=3H1U1TGjYvIQ7kNvwEP8PBh&_nc_oc=AdnTaE5k23ykth15k8PJpu0etN62rpTJqxRUjTAwn-bUELs6oZBwwOkxU5Vd-5q6I3Y&_nc_zt=23&_nc_ht=scontent.fccu2-1.fna&_nc_gid=_VP4W65Q-YUZm5V0cch7wg&oh=00_AfqcYxcpyb32KG1DD9TQ2NQpNwYFL1W4zQOmOndGq5Gcfg&oe=69664C0C"
+                        alt="Sunshine 1">
+                    <div class="gallery-overlay">
+                        <div class="overlay-text">You light up every moment 💖</div>
+                    </div>
+                </div>
+
+                <!-- Photo 2 -->
+                <div class="gallery-item scale-entry">
+                    <img src="https://scontent.fccu2-1.fna.fbcdn.net/v/t39.30808-6/496120242_1214908580300975_8746494809946666258_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=109&ccb=1-7&_nc_sid=833d8c&_nc_ohc=FUACaapBppgQ7kNvwGC7WFd&_nc_oc=AdlQ4tvmp0XofF0fHmneONjvqDuZz6jmICnEf-4gZZvfNtD9NFmd_MUIgmEdVyaAyVI&_nc_zt=23&_nc_ht=scontent.fccu2-1.fna&_nc_gid=LKKrVYIJfz0dgVMAMluv0w&oh=00_Afr2zvIr-sTfALNye9XF25prcSzkbFenmMhAogSORyxjBg&oe=69666504"
+                        alt="Sunshine 2">
+                    <div class="gallery-overlay">
+                        <div class="overlay-text">Today is all about YOU 🎂</div>
+                    </div>
+                </div>
+
+                <!-- Photo 3 -->
+                <div class="gallery-item right-entry">
+                    <img src="https://scontent.fccu2-2.fna.fbcdn.net/v/t39.30808-6/494120122_1226156579176175_4561342143108945461_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=101&ccb=1-7&_nc_sid=833d8c&_nc_ohc=YjMAh1jP22wQ7kNvwH_EeLx&_nc_oc=Adk8pA7kni7GJ8IlJWVCt413pyy3XPX2KOi4djf7tDVhiDp8zPM0nqMaqzcb89710TE&_nc_zt=23&_nc_ht=scontent.fccu2-2.fna&_nc_gid=LuJMqO2wWh62RVmHrxXBtQ&oh=00_AfqJXQXOSJkyCJaFnzneFy5zfubxjuLOuH2NHGZXu-qGsA&oe=69666990"
+                        alt="Sunshine 3">
+                    <div class="gallery-overlay">
+                        <div class="overlay-text">Your smile makes everything brighter ✨</div>
+                    </div>
+                </div>
+
+                <!-- Photo 4 -->
+                <div class="gallery-item left-entry">
+                    <img src="https://scontent.fccu2-1.fna.fbcdn.net/v/t39.30808-6/481251683_1160652499059917_4314308784918527724_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=111&ccb=1-7&_nc_sid=833d8c&_nc_ohc=I8MpWmfTrywQ7kNvwEX6fzw&_nc_oc=AdmXHQlfuyTFR41MVrlXT_oMZeHPIaznOa1OdjBeUcm8B2XJkpYvbHKbcPi4Rptgwxk&_nc_zt=23&_nc_ht=scontent.fccu2-1.fna&_nc_gid=leqdiMs91IT-U4KFUJIrew&oh=00_AfrwMiyU-favesK_pFF-JiDelFjABi-eZL5H2L8Okezhzg&oe=6966554D"
+                        alt="Sunshine 4">
+                    <div class="gallery-overlay">
+                        <div class="overlay-text">Elegance is your middle name 👑</div>
+                    </div>
+                </div>
+
+                <!-- Photo 5 -->
+                <div class="gallery-item scale-entry">
+                    <img src="https://scontent.fccu2-3.fna.fbcdn.net/v/t39.30808-6/606899279_1402499804875184_7353961820525913724_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=102&ccb=1-7&_nc_sid=833d8c&_nc_ohc=pzQJFpNAEG8Q7kNvwE0kJf0&_nc_oc=AdmQMmRuT1RtHPz6KkYojTJ_9r_O1ASD7yfTidD6JNhhms69sPTdo-xD62rf8o9sJqQ&_nc_zt=23&_nc_ht=scontent.fccu2-3.fna&_nc_gid=Ym7H323Z73IitlgaEa1QEw&oh=00_Afrb_BZ11KkAXby11B3LsgSRN6clURu9pnYG9J362DU0ow&oe=69664F80"
+                        alt="Sunshine 5">
+                    <div class="gallery-overlay">
+                        <div class="overlay-text">Keep shining, Star! 🌟</div>
+                    </div>
+                </div>
+
+                <!-- Photo 6 -->
+                <div class="gallery-item right-entry">
+                    <img src="https://scontent.fccu2-2.fna.fbcdn.net/v/t39.30808-6/480218346_1154375473020953_5417764443800788307_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=833d8c&_nc_ohc=E-bY-seJiPEQ7kNvwHs7lwm&_nc_oc=AdmKx3-jVJeMmYKNaDPZ_Di0VCjv988fRESKyyON3fZB5DJVr-gf1C5ecAwh9fkClng&_nc_zt=23&_nc_ht=scontent.fccu2-2.fna&_nc_gid=uNMn9hO_2cqSFwemc47mlg&oh=00_Afqu1KchQLLCVuOdxSt_jiv-mRwTFTMnGcJcBx2H2qFpzQ&oe=6966493B"
+                        alt="Sunshine 6">
+                    <div class="gallery-overlay">
+                        <div class="overlay-text">Cheers to another great year 🥂</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Made with ❤️ for Sunshine
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
